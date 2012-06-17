@@ -2,7 +2,7 @@
 # -*- coding: latin-1 -*-
 
 import unittest
-from scheme import Tokenizer, Parser
+from scheme import Tokenizer, Parser, Evaluator
 
 from scheme import Operator, Symbol, Number
 
@@ -33,6 +33,13 @@ class TestParser(unittest.TestCase):
         parse_tree = Parser.parse(tokens)
         self.assertEqual(len(parse_tree), 1)
         self.assertEqual(type(parse_tree[0]), Number) 
+
+class TestEvaluator(unittest.TestCase):
+    def test_can_evaluate_simple_multiplication(self):
+        parse_tree = [ Operator(), Number(2.0), Number(3.0) ]
+        result = Evaluator.evaluate(parse_tree)
+        self.assertEqual(result, 6.0)
+
 
 if __name__ == '__main__':
     unittest.main()
