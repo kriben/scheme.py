@@ -3,8 +3,7 @@
 
 import unittest
 from scheme import Tokenizer, Parser, Evaluator
-
-from scheme import Operator, Symbol, Number
+from scheme import Operator, OperatorFactory, Symbol, Number
 
 
 class TestTokenizer(unittest.TestCase):
@@ -36,9 +35,29 @@ class TestParser(unittest.TestCase):
 
 class TestEvaluator(unittest.TestCase):
     def test_can_evaluate_simple_multiplication(self):
-        parse_tree = [ Operator(), Number(2.0), Number(3.0) ]
+        parse_tree = [ OperatorFactory.make_operator("*"), Number(2.0), Number(3.0) ]
         result = Evaluator.evaluate(parse_tree)
         self.assertEqual(result, 6.0)
+
+    def test_can_evaluate_simple_addition(self):
+        parse_tree = [ OperatorFactory.make_operator("+"), Number(2.0), Number(3.0) ]
+        result = Evaluator.evaluate(parse_tree)
+        self.assertEqual(result, 5.0)
+
+    def test_can_evaluate_simple_division(self):
+        parse_tree = [ OperatorFactory.make_operator("/"), Number(8.0), Number(2.0) ]
+        result = Evaluator.evaluate(parse_tree)
+        self.assertEqual(result, 4.0)
+
+    def test_can_evaluate_simple_subtraction(self):
+        parse_tree = [ OperatorFactory.make_operator("-"), Number(8.0), Number(4.0), Number(1.0) ]
+        result = Evaluator.evaluate(parse_tree)
+        self.assertEqual(result, 3.0)
+
+    def test_raises_exception_on_unknown_operator(self):
+        with self.assertRaises(Exception) as context:
+            OperatorFactory.make_operator("#")
+        self.assertEqual(context.exception.message, 'Unknown operator: #')
 
 
 if __name__ == '__main__':

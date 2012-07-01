@@ -1,3 +1,4 @@
+import operator
 
 class Tokenizer(object):
     @staticmethod
@@ -13,13 +14,30 @@ class Symbol(object):
         self.token = token
 
 class Operator(object):
+    def __init__(self, op):
+        self.op = op
+
     def apply(self, operands):
-        sum = operands[0]
-        for op in operands[1:]:
-            sum *= op
-        return sum
+        value = operands[0]
+        for operand in operands[1:]:
+            value = self.op(value, operand)
+        return value
 
-
+class OperatorFactory(object):
+    @staticmethod
+    def make_operator(token):
+        if token == "*":
+            return Operator(operator.mul)
+        elif token == "/":
+            return Operator(operator.div)
+        elif token == "+":
+            return Operator(operator.add)
+        elif token == "-":
+            return Operator(operator.sub)
+        else:
+            ## Unknown operator: user error?
+            raise Exception("Unknown operator: %s" % token)
+            
 
 class Number(object):
     def __init__(self, token):
@@ -37,7 +55,7 @@ class Parser(object):
     @staticmethod
     def make_expression(token):
         if token == "*":
-            return Operator()
+            return OperatorFactory.make_operator(token)
         elif Parser.is_number(token):
             return Number(token)
         else:
