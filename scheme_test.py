@@ -1,12 +1,7 @@
 #!/usr/bin/python
 # -*- coding: latin-1 -*-
 
-try:
-    # needed for assertRaises on python2.6
-    import unittest2
-except:
-    import unittest
-
+import unittest
 
 from scheme import Tokenizer, Parser, Evaluator
 from scheme import Operator, OperatorFactory, Symbol, Number
