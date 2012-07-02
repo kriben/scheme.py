@@ -2,10 +2,11 @@
 # -*- coding: latin-1 -*-
 
 try:
-    import unittest
-except:
     # needed for assertRaises on python2.6
     import unittest2
+except:
+    import unittest
+
 
 from scheme import Tokenizer, Parser, Evaluator
 from scheme import Operator, OperatorFactory, Symbol, Number
@@ -38,6 +39,17 @@ class TestParser(unittest.TestCase):
         self.assertEqual(len(parse_tree), 1)
         self.assertEqual(type(parse_tree[0]), Number) 
 
+    def test_can_parse_nested_expression(self):
+        tokens = ["(", "+", "2.3", "(", "*", "4.5", "3", ")", ")"]
+        parse_tree = Parser.parse(tokens)
+        self.assertEqual(len(parse_tree), 3)
+        self.assertEqual(type(parse_tree[0]), Operator) 
+        self.assertEqual(type(parse_tree[1]), Number) 
+        self.assertEqual(type(parse_tree[2]), list)
+        self.assertEqual(len(parse_tree[2]), 3)
+        self.assertEqual(type(parse_tree[2][0]), Operator)
+
+
 class TestEvaluator(unittest.TestCase):
     def test_can_evaluate_simple_multiplication(self):
         parse_tree = [ OperatorFactory.make_operator("*"), Number(2.0), Number(3.0) ]
@@ -63,7 +75,6 @@ class TestEvaluator(unittest.TestCase):
         with self.assertRaises(Exception) as context:
             OperatorFactory.make_operator("#")
         self.assertEqual(str(context.exception), 'Unknown operator: #')
-
 
 
 if __name__ == '__main__':

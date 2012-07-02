@@ -50,20 +50,26 @@ class Number(object):
 class Parser(object):
     @staticmethod 
     def parse(tokens):
-        tree = []
-        for t in tokens:
-            if t != "(" and t != ")":
-                tree.append(Parser.make_expression(t))
-        return tree
+        t = tokens.pop(0)
+        if t == "(": 
+            tree = []
+            while tokens[0] != ")":
+                tree.append(Parser.parse(tokens)) 
+            tokens.pop(0)
+            return tree
+        else:
+            return Parser.make_expression(t)
+
 
     @staticmethod
     def make_expression(token):
-        if token == "*":
+        try:
             return OperatorFactory.make_operator(token)
-        elif Parser.is_number(token):
-            return Number(token)
-        else:
-            return Symbol(token)
+        except:
+            if Parser.is_number(token):
+                return Number(token)
+            else:
+                return Symbol(token)
         
         
     @staticmethod
