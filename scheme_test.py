@@ -76,6 +76,12 @@ class TestEvaluator(unittest.TestCase):
             OperatorFactory.make_operator("#")
         self.assertEqual(str(context.exception), 'Unknown operator: #')
 
+    def test_can_handle_nested_arithmetic(self):
+        parse_tree = [ OperatorFactory.make_operator("*"), 
+                       Number(2.0), 
+                       [ OperatorFactory.make_operator("+"), Number(4.0), Number(5.0) ] ]
+        result = Evaluator.evaluate(parse_tree)
+        self.assertEqual(result, 18.0)
 
 if __name__ == '__main__':
     unittest.main()
