@@ -29,7 +29,11 @@ class OperatorFactory(object):
         if token == "*":
             return Operator(operator.mul)
         elif token == "/":
-            return Operator(operator.div)
+            try: 
+                return Operator(operator.div)
+            except AttributeError:
+                ## Handle python3
+                return Operator(operator.truediv) 
         elif token == "+":
             return Operator(operator.add)
         elif token == "-":

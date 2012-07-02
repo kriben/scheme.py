@@ -57,7 +57,7 @@ class TestEvaluator(unittest.TestCase):
     def test_raises_exception_on_unknown_operator(self):
         with self.assertRaises(Exception) as context:
             OperatorFactory.make_operator("#")
-        self.assertEqual(context.exception.message, 'Unknown operator: #')
+        self.assertEqual(str(context.exception), 'Unknown operator: #')
 
 
 
