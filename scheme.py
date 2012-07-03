@@ -17,11 +17,17 @@ class Operator(object):
     def __init__(self, op):
         self.op = op
 
-    def apply(self, operands):
+    def apply(self, operands, environment):
         value = operands[0]
         for operand in operands[1:]:
             value = self.op(value, operand)
         return value
+
+class AssignmentOperator(object):
+    def apply(self, tokens, environment):
+        assert(type(tokens[0]) == Symbol)
+        environment.set(tokens[0].token, tokens[1])
+
 
 class OperatorFactory(object):
     @staticmethod
@@ -38,6 +44,8 @@ class OperatorFactory(object):
             return Operator(operator.add)
         elif token == "-":
             return Operator(operator.sub)
+        elif token == "set!":
+            return AssignmentOperator()
         else:
             ## Unknown operator: user error?
             raise Exception("Unknown operator: %s" % token)
@@ -86,7 +94,10 @@ class Evaluator(object):
         if type(parse_tree) is list:
             if type(parse_tree[0]) is Operator:
                 results = [ Evaluator.evaluate(i, environment) for i in parse_tree[1:] ]
-                return parse_tree[0].apply(results)
+                return parse_tree[0].apply(results, environment)
+            elif type(parse_tree[0]) is AssignmentOperator:
+                # TODO: handle more than variable:value pair
+                parse_tree[0].apply([parse_tree[1], Evaluator.evaluate(parse_tree[2], environment)], environment )
         elif type(parse_tree) is Number:
             return parse_tree.value
         elif type(parse_tree) is Symbol:

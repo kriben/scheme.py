@@ -103,5 +103,11 @@ class TestEvaluator(unittest.TestCase):
         result = Evaluator.evaluate(parse_tree, env)
         self.assertEqual(result, 6.0)
 
+    def test_can_set_variable_to_the_environment(self):
+        env = Environment()
+        parse_tree = [ OperatorFactory.make_operator("set!"), Symbol("x"), Number(19) ]
+        Evaluator.evaluate(parse_tree, env)
+        self.assertEqual(env.get("x"), 19)
+
 if __name__ == '__main__':
     unittest.main()
