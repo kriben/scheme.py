@@ -89,3 +89,16 @@ class Evaluator(object):
                 return parse_tree[0].apply(results)
         elif type(parse_tree) is Number:
             return parse_tree.value
+
+class Environment(object):
+    def __init__(self):
+        self.variables = {}
+
+    def get(self, variable):
+        if variable in self.variables:
+            return self.variables[variable]
+        else:
+            raise Exception("Unbound variable: %s" % variable)
+
+    def set(self, variable, value):
+        self.variables[variable] = value

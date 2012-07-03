@@ -4,7 +4,7 @@
 import unittest
 
 from scheme import Tokenizer, Parser, Evaluator
-from scheme import Operator, OperatorFactory, Symbol, Number
+from scheme import Operator, OperatorFactory, Symbol, Number, Environment
 
 
 class TestTokenizer(unittest.TestCase):
@@ -43,6 +43,23 @@ class TestParser(unittest.TestCase):
         self.assertEqual(type(parse_tree[2]), list)
         self.assertEqual(len(parse_tree[2]), 3)
         self.assertEqual(type(parse_tree[2][0]), Operator)
+
+class TestEnvironment(unittest.TestCase):
+    def test_throws_exception_when_getting_unbound(self):
+        env = Environment()
+        with self.assertRaises(Exception) as context:
+            env.get("a")
+        self.assertEqual(str(context.exception), 'Unbound variable: a')
+
+        with self.assertRaises(Exception) as context:
+            env.get("b")
+        self.assertEqual(str(context.exception), 'Unbound variable: b')
+
+    def test_getting_and_setting_variable(self):
+        env = Environment()
+        value = 2.3
+        env.set("a", value)
+        self.assertEqual(value, env.get("a"))
 
 
 class TestEvaluator(unittest.TestCase):
