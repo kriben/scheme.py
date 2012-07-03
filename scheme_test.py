@@ -95,5 +95,13 @@ class TestEvaluator(unittest.TestCase):
         result = Evaluator.evaluate(parse_tree)
         self.assertEqual(result, 18.0)
 
+    def test_can_lookup_variable_from_the_environment(self):
+        env = Environment()
+        env.set("a", 2.0)
+        env.set("b", 3.0)
+        parse_tree = [ OperatorFactory.make_operator("*"), Symbol("a"), Symbol("b") ]
+        result = Evaluator.evaluate(parse_tree, env)
+        self.assertEqual(result, 6.0)
+
 if __name__ == '__main__':
     unittest.main()

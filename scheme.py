@@ -82,13 +82,15 @@ class Parser(object):
             
 class Evaluator(object):
     @staticmethod
-    def evaluate(parse_tree):
+    def evaluate(parse_tree, environment = None):
         if type(parse_tree) is list:
             if type(parse_tree[0]) is Operator:
-                results = [ Evaluator.evaluate(i) for i in parse_tree[1:] ]
+                results = [ Evaluator.evaluate(i, environment) for i in parse_tree[1:] ]
                 return parse_tree[0].apply(results)
         elif type(parse_tree) is Number:
             return parse_tree.value
+        elif type(parse_tree) is Symbol:
+            return environment.get(parse_tree.token)
 
 class Environment(object):
     def __init__(self):
