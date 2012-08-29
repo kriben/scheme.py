@@ -13,20 +13,45 @@ class Symbol(object):
     def __init__(self, token):
         self.token = token
 
+    def __str__(self):
+        return "<Symbol: %s>" % self.token
+
 class Operator(object):
     def __init__(self, op):
         self.op = op
 
+    def get_number_value(self, val):
+        if type(val) is Number:
+            return val.value
+        elif type(val) in [int, float]:
+            return val
+
     def apply(self, operands, environment):
-        value = operands[0]
+        value = self.get_number_value(operands[0])
         for operand in operands[1:]:
-            value = self.op(value, operand)
+            value = self.op(value, self.get_number_value(operand))
         return value
 
 class AssignmentOperator(object):
     def apply(self, tokens, environment):
         assert(type(tokens[0]) == Symbol)
         environment.set(tokens[0].token, tokens[1])
+
+class Procedure(object):
+    def __init__(self, name, arguments, body):
+        self.name = name
+        self.arguments = arguments
+        self.body = body
+
+    def apply(self, tokens, environment):
+        new_env = Environment()
+        for index, arg in enumerate(self.arguments):
+            new_env.set(arg.token, tokens[index])
+        return Evaluator.evaluate(self.body, new_env)
+
+    def __str__(self):
+        return "<Procedure: %s>" % self.name
+    
 
 
 class OperatorFactory(object):
@@ -65,6 +90,13 @@ class Parser(object):
                 tree.append(Parser.parse(tokens)) 
             tokens.pop(0)
             return tree
+        elif t == "defun":
+            tree = []
+            while tokens[0] != ")":
+                tree.append(Parser.parse(tokens))
+            
+            name, arguments, body = tree
+            return Procedure(name.token, arguments, body)
         else:
             return Parser.make_expression(t)
 
@@ -75,7 +107,7 @@ class Parser(object):
             return OperatorFactory.make_operator(token)
         except:
             if Parser.is_number(token):
-                return Number(token)
+                return Number(float(token))
             else:
                 return Symbol(token)
         
@@ -98,10 +130,19 @@ class Evaluator(object):
             elif type(parse_tree[0]) is AssignmentOperator:
                 # TODO: handle more than variable:value pair
                 parse_tree[0].apply([parse_tree[1], Evaluator.evaluate(parse_tree[2], environment)], environment )
+            elif type(parse_tree[0]) is Procedure:
+                return environment.set(parse_tree[0].name, parse_tree[0])
+            elif type(parse_tree[0]) is Symbol:
+                symbol = environment.get(parse_tree[0].token)
+                if type(symbol) is Procedure:
+                    return symbol.apply(parse_tree[1:], environment)
+                else:
+                    return symbol
         elif type(parse_tree) is Number:
             return parse_tree.value
         elif type(parse_tree) is Symbol:
-            return environment.get(parse_tree.token)
+            symbol = environment.get(parse_tree.token)
+            return symbol
 
 class Environment(object):
     def __init__(self):

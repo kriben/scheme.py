@@ -4,7 +4,7 @@
 import unittest
 
 from scheme import Tokenizer, Parser, Evaluator
-from scheme import Operator, OperatorFactory, Symbol, Number, Environment
+from scheme import Operator, OperatorFactory, Symbol, Number, Environment, Procedure
 
 
 class TestTokenizer(unittest.TestCase):
@@ -43,6 +43,14 @@ class TestParser(unittest.TestCase):
         self.assertEqual(type(parse_tree[2]), list)
         self.assertEqual(len(parse_tree[2]), 3)
         self.assertEqual(type(parse_tree[2][0]), Operator)
+
+    def test_can_parse_function_definition(self):
+        tokens = ["(", "defun", "square", "(", "x", ")", "(", "*", "x", "x", ")", ")" ]
+        parse_tree = Parser.parse(tokens)
+        self.assertEqual(len(parse_tree), 1)
+        self.assertEqual(type(parse_tree[0]), Procedure) 
+        self.assertEqual("square", parse_tree[0].name)
+        self.assertEqual(len(parse_tree[0].arguments), 1)
 
 class TestEnvironment(unittest.TestCase):
     def test_throws_exception_when_getting_unbound(self):
@@ -108,6 +116,19 @@ class TestEvaluator(unittest.TestCase):
         parse_tree = [ OperatorFactory.make_operator("set!"), Symbol("x"), Number(19) ]
         Evaluator.evaluate(parse_tree, env)
         self.assertEqual(env.get("x"), 19)
+
+    def test_can_create_new_function(self):
+        # Create a square function (which will be added to the environment)
+        env = Environment()
+        square_function = "(defun square(x)(* x x)))"
+        Evaluator.evaluate(Parser.parse(Tokenizer.tokenize(square_function)), env)
+        self.assertTrue(env.get("square"))
+
+        # Call the square function
+        call_square_function = "(square 9)"
+        returned_value = Evaluator.evaluate(Parser.parse(Tokenizer.tokenize(call_square_function)), env)
+        self.assertEqual(returned_value, 81)
+
 
 if __name__ == '__main__':
     unittest.main()
